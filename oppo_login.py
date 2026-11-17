@@ -23,7 +23,7 @@ from Crypto.Hash import SHA1
 from Crypto.PublicKey import RSA
 from Crypto.Util import Counter
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.abspath(sys.executable if getattr(sys, "frozen", False) else __file__))
 AUTH_FILE = os.path.abspath(
     os.environ.get("OPPO_HEALTH_AUTH_FILE") or os.path.join(HERE, "auth.json")
 )
