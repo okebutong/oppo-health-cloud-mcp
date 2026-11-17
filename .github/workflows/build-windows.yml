@@ -1,0 +1,60 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "mcp[cli]" requests pycryptodome pyinstaller
+
+      - name: Check Windows curl
+        shell: pwsh
+        run: |
+          $curl = Get-Command curl.exe -ErrorAction Stop
+          Write-Host "Using curl at $($curl.Source)"
+          curl.exe --version
+
+      - name: Build MCP server
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onefile --console --name oppo-health-cloud-mcp --collect-all mcp --collect-all pydantic --collect-all pydantic_core cloud_mcp.py
+
+      - name: Build login utility
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --onefile --console --name oppo-health-login --hidden-import cloud_mcp --collect-all requests --collect-all urllib3 --collect-all Crypto oppo_login.py
+
+      - name: Prepare release files
+        shell: pwsh
+        run: |
+          Copy-Item WINDOWS-README.txt dist/WINDOWS-README.txt
+
+      - name: Upload Windows executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppo-health-cloud-mcp-windows-x64
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
