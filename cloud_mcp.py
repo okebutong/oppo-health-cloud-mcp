@@ -12,10 +12,10 @@
 2. 注册 MCP (stdio): <python> cloud_mcp.py
 3. 工具: cloud_sync(拉明细并写缓存), cloud_query(查缓存), cloud_analyze(周期分析), cloud_status(自检)
 """
-import base64, datetime, hashlib, hmac, json, os, sqlite3, struct, time, urllib.request, urllib.error
+import base64, datetime, hashlib, hmac, json, os, sqlite3, struct, time, urllib.request, urllib.error, sys
 from typing import Literal
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.abspath(sys.executable if getattr(sys, "frozen", False) else __file__))
 AUTH_FILE = os.path.abspath(
     os.environ.get("OPPO_HEALTH_AUTH_FILE") or os.path.join(HERE, "auth.json")
 )
